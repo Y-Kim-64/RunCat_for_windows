@@ -367,11 +367,32 @@ namespace RunCat
         private void CPUTick()
         {
             interval = Math.Min(100, cpuUsage.NextValue()); // Sometimes got over 100% so it should be limited to 100%
-            notifyIcon.Text = $"CPU: {interval:f1}%";
+            float totalMemory;
+            float usedMemory;
+            using (var pc = new PerformanceCounter("Memory", "Available Bytes"))
+            {
+                var availableMemory = pc.NextValue();
+                totalMemory = GetTotalPhysicalMemory();
+                usedMemory = totalMemory - availableMemory;
+            }
+            notifyIcon.Text = $@"CPU: {interval:f1}%, Mem: {usedMemory / totalMemory * 100:f2}%";
             interval = 200.0f / (float)Math.Max(1.0f, Math.Min(20.0f, interval / 5.0f));
             _ = interval;
             CPUTickSpeed();
         }
+
+        private static float GetTotalPhysicalMemory()
+        {
+            var oMs = new System.Management.ObjectQuery("SELECT TotalPhysicalMemory FROM Win32_ComputerSystem");
+            var mSearcher = new System.Management.ManagementObjectSearcher(oMs);
+            float totalPhysicalMemory = 0;
+            foreach (var item in mSearcher.Get())
+            {
+                totalPhysicalMemory = Convert.ToSingle(item["TotalPhysicalMemory"]);
+            }
+            return totalPhysicalMemory;
+        }
+
         private void ObserveCPUTick(object sender, EventArgs e)
         {
             CPUTick();

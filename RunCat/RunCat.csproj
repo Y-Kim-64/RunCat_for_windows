@@ -58,6 +58,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Management" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Properties\UserSettings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>UserSettings.Designer.cs</LastGenOutput>
